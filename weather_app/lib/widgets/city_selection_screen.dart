@@ -11,6 +11,7 @@ class _CitySelectionState extends State<CitySelection> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xff353535),
       appBar: AppBar(
         title: Text('City'),
       ),
@@ -24,7 +25,9 @@ class _CitySelectionState extends State<CitySelection> {
                   controller: _textController,
                   decoration: InputDecoration(
                     labelText: 'City',
+                    labelStyle: TextStyle(color: Colors.white),
                     hintText: 'Chicago',
+                    hintStyle: TextStyle(color: Colors.white),
                   ),
                 ),
               ),

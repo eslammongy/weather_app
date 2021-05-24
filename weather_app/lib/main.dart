@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_app/blocs/blocs.dart';
+import 'package:weather_app/blocs/settings_bloc.dart';
 import 'package:weather_app/blocs/simple_bloc_observer.dart';
+import 'package:weather_app/blocs/theme_bloc.dart';
 import 'package:weather_app/repositories/repositories.dart';
 import 'package:http/http.dart' as http;
 import 'package:weather_app/widgets/weather_screen.dart';
@@ -14,9 +16,19 @@ void main() {
       httpClient: http.Client(),
     ),
   );
-  runApp(MyApp(
-    weatherRepository: weatherRepository,
-  ));
+  runApp(
+    MultiBlocProvider(
+      providers: [
+        BlocProvider<ThemeBloc>(
+          create: (context) => ThemeBloc(),
+        ),
+        BlocProvider<SettingBloc>(
+          create: (context) => SettingBloc(),
+        ),
+      ],
+      child: MyApp(weatherRepository: weatherRepository),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -27,12 +39,19 @@ class MyApp extends StatelessWidget {
         super(key: key);
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Material App',
-      home: BlocProvider(
-        create: (context) => WeatherBloc(weatherRepository: weatherRepository),
-        child: WeatherScreen(),
-      ),
+    return BlocBuilder<ThemeBloc, ThemeState>(
+      builder: (context, state) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Weather',
+          theme: state.themeData,
+          home: BlocProvider(
+            create: (context) =>
+                WeatherBloc(weatherRepository: weatherRepository),
+            child: WeatherScreen(),
+          ),
+        );
+      },
     );
   }
 }

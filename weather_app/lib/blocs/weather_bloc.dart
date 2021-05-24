@@ -14,14 +14,29 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
   @override
   Stream<WeatherState> mapEventToState(WeatherEvent event) async* {
     if (event is WeatherRequested) {
-      yield WeatherLoadInProgressState();
-      try {
-        final Weather weather = await weatherRepository.getWeather(event.city);
-
-        yield WeatherLoadSuccessState(weather: weather);
-      } catch (_) {
-        yield WeatherLoadFailureState();
-      }
+      yield* weatherRequestedEventToState(event);
     }
+    if (event is WeatherRefreshRequested) {
+      yield* weatherRefreshRequestedEventToState(event);
+    }
+  }
+
+  Stream<WeatherState> weatherRequestedEventToState(
+      WeatherRequested event) async* {
+    yield WeatherLoadInProgressState();
+    try {
+      final Weather weather = await weatherRepository.getWeather(event.city);
+      yield WeatherLoadSuccessState(weather: weather);
+    } catch (_) {
+      yield WeatherLoadFailureState();
+    }
+  }
+
+  Stream<WeatherState> weatherRefreshRequestedEventToState(
+      WeatherRefreshRequested event) async* {
+    try {
+      final Weather weather = await weatherRepository.getWeather(event.city);
+      yield WeatherLoadSuccessState(weather: weather);
+    } catch (_) {}
   }
 }
